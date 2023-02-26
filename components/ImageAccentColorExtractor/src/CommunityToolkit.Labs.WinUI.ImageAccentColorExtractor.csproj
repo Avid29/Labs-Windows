@@ -1,0 +1,18 @@
+<Project Sdk="MSBuild.Sdk.Extras/3.0.23">
+  <PropertyGroup>
+    <ToolkitComponentName>ImageAccentColorExtractor</ToolkitComponentName>
+    <PackageId>CommunityToolkit.Labs.$(PackageIdVariant).ImageAccentColorExtractor</PackageId>
+    <Description>This package contains ImageAccentColorExtractor.</Description>
+    <Version>0.0.1</Version>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+    <!-- Rns suffix is required for namespaces shared across projects. See https://github.com/CommunityToolkit/Labs-Windows/issues/152 -->
+    <RootNamespace>CommunityToolkit.Labs.WinUI.ImageAccentColorExtractorRns</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Sets this up as a toolkit component's source project -->
+  <Import Project="$(RepositoryDirectory)common\ToolkitComponent.SourceProject.props" />
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+</Project>
