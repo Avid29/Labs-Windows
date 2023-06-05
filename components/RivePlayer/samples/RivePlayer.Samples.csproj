@@ -4,14 +4,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Rive uses a custom csproj file name, so it must be imported manually. -->
-    <ProjectReference Include="$(MSBuildProjectDirectory)\..\src\CommunityToolkit.Labs.WinUI.Rive.RivePlayer.csproj" />
-
     <None Update="animated-login-screen.riv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <!-- Sets this up as a toolkit component's sample project -->
-  <Import Project="$(RepositoryDirectory)common\ToolkitComponent.SampleProject.props" />
+  <Import Project="$(ToolingDirectory)\ToolkitComponent.SampleProject.props" />
 </Project>
