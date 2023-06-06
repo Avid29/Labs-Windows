@@ -4,6 +4,8 @@
 
 #if NET6_0_WINDOWS10_0_19041_0
 using Microsoft.UI.Xaml.Media.Imaging;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
 #else
 using Windows.UI.Xaml.Media.Imaging;
 #endif
@@ -48,16 +50,25 @@ public static class AccentColorExtractor
         dependencyObject.SetValue(CalculateProperty, value);
     }
 
-    private static void OnCalculateAccentColorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static async void OnCalculateAccentColorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is Image image && image.Source is BitmapImage imgSrc)
         {
-            // TODO: Get pixels
+            #if NET6_0_WINDOWS10_0_19041_0
+            var stream = await RandomAccessStreamReference.CreateFromUri(imgSrc.UriSource).OpenReadAsync();
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+            var pixelData = await decoder.GetPixelDataAsync();
+            var bytes = pixelData.DetachPixelData();
+            
+            var color = Color.FromArgb(bytes[3], bytes[2], bytes[1], bytes[0]);
+            #else
 
             // DEBUG: Temporary method of generating a unique color by image
             var hash = imgSrc.UriSource.GetHashCode();
             var bytes = BitConverter.GetBytes(hash);
             var color = Color.FromArgb(255, bytes[0], bytes[1], bytes[2]);
+
+            #endif
 
             // Convert color to brush
             var brush = new SolidColorBrush(color);

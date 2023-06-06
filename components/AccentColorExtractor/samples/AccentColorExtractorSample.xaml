@@ -7,12 +7,12 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d">
 
-    <StackPanel>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center">
         <Image x:Name="MyImage" Source="https://writteninmusic.com/wp-content/uploads/2019/05/cover-vampire-weekend-father-of-the-bride-1024x1024.jpg"
-               ui:AccentColorExtractor.Calculate="true" Width="40" Height="40"/>
+               ui:AccentColorExtractor.Calculate="true" Width="128" Height="128"/>
 
         <Rectangle Fill="{x:Bind MyImage.(ui:AccentColorExtractor.PrimaryAccentColor), Mode=OneWay}"
-                   Margin="0,8,0,0" Width="40" Height="40"/>
+                   Margin="16,0,0,0" Width="128" Height="128"/>
     </StackPanel>
     
 </Page>
