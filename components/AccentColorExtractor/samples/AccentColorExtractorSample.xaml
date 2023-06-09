@@ -8,7 +8,7 @@
       mc:Ignorable="d">
 
     <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center">
-        <Image x:Name="MyImage" Source="https://writteninmusic.com/wp-content/uploads/2019/05/cover-vampire-weekend-father-of-the-bride-1024x1024.jpg"
+        <Image x:Name="MyImage" Source="https://mrhipster.com/wp/wp-content/uploads/2020/05/weezer-blue-album.jpg"
                ui:AccentColorExtractor.Calculate="true" Width="128" Height="128"/>
 
         <Rectangle Fill="{x:Bind MyImage.(ui:AccentColorExtractor.PrimaryAccentColor), Mode=OneWay}"

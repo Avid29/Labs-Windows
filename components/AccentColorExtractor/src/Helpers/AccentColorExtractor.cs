@@ -3,8 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 #if NET6_0_WINDOWS10_0_19041_0
+using CommunityToolkit.WinUI.Controls.AccentColorExtractorRns.Analysis.Cluster;
+using CommunityToolkit.WinUI.Controls.AccentColorExtractorRns.Analysis.Extract;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 #else
 using Windows.UI.Xaml.Media.Imaging;
@@ -16,6 +17,15 @@ namespace CommunityToolkit.WinUI.Controls.Helpers;
 
 public static class AccentColorExtractor
 {
+    // Use a different fallback color in release and debug
+    #if DEBUG
+    // Use magenta as fallback in debug for clear reporting
+    private static readonly Color FALLBACK = Color.FromArgb(255,255,0,255);
+    #else
+    // Use a semi-transparent white fallback in release for minimal contrast error and confusion
+    private static readonly Color FALLBACK = Color.FromArgb(200,255,255,255);
+    #endif
+
     public static readonly DependencyProperty CalculateProperty =
         DependencyProperty.RegisterAttached(
             "Calculate",
@@ -28,7 +38,7 @@ public static class AccentColorExtractor
             "PrimaryAccentColor",
             typeof(Brush),
             typeof(AccentColorExtractor),
-            new PropertyMetadata(new SolidColorBrush(Color.FromArgb(255,255,0,255))));
+            new PropertyMetadata(new SolidColorBrush(FALLBACK)));
 
     public static Brush GetPrimaryAccentColor(DependencyObject dependencyObject)
     {
@@ -52,15 +62,15 @@ public static class AccentColorExtractor
 
     private static async void OnCalculateAccentColorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is Image image && image.Source is BitmapImage imgSrc)
+        if (d is Image {Source: BitmapImage imgSrc})
         {
             #if NET6_0_WINDOWS10_0_19041_0
             var stream = await RandomAccessStreamReference.CreateFromUri(imgSrc.UriSource).OpenReadAsync();
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-            var pixelData = await decoder.GetPixelDataAsync();
-            var bytes = pixelData.DetachPixelData();
-            
-            var color = Color.FromArgb(bytes[3], bytes[2], bytes[1], bytes[0]);
+            var sampler = await PixelSampler.CreateAsync(stream);
+            var sample = await sampler.SamplePixelsAsync(2500);
+
+            var accents = KMeans.Cluster(sample, 3);
+            var color = accents[0];
             #else
 
             // DEBUG: Temporary method of generating a unique color by image

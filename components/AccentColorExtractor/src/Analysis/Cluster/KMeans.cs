@@ -2,70 +2,74 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.WinUI.Controls.AccentColorExtractorRns.Analysis.Cluster.Shape.Interfaces;
-using System.Runtime.InteropServices;
+using Windows.UI;
 
 namespace CommunityToolkit.WinUI.Controls.AccentColorExtractorRns.Analysis.Cluster;
 
 internal static class KMeans
 {
-    internal static T[] Cluster<T>(List<T> points, int k, ISpace<T> space)
-    {
-        if (k < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(k), k, $"{nameof(k)} must be greater than or equal to one (1).");
-        }
+    private const int MAX_ITERS = 50;
 
-        if (k == 1)
+    internal static Color[] Cluster(Color[] points, int k)
+    {
+        if (k <= 1)
         {
-            var avg = space.Average(points);
-            return new T[] { avg };
+            throw new ArgumentOutOfRangeException(nameof(k), k, $"{nameof(k)} must be greater than or equal to two (2).");
         }
 
         // Split the points arbitrarily into initial clusters
-        var clusters = Split(points, k, space);
+        var clusters = Split(points, k);
 
         // Iterate shifting every point until convergence
         var changed = true;
-        while (changed)
+        int iters = 0;
+        while (changed && iters < MAX_ITERS)
         {
+            changed = false;
+
             for (var i = 0; i < clusters.Length; i++)
             {
                 var cluster = clusters[i];
-                for (var pointIndex = 0; pointIndex < cluster.Points.Count; pointIndex++)
+                for (var pointIndex = 0; pointIndex < cluster.Count; pointIndex++)
                 {
-                    var point = cluster.Points[pointIndex];
+                    var point = cluster[pointIndex];
 
-                    var nearestClusterIndex = FindNearestClusterIndex(point, clusters, space);
+                    var nearestClusterIndex = FindNearestClusterIndex(point, clusters);
 
                     // Already in nearest cluster
                     if (nearestClusterIndex == i)
+                    {
                         continue;
+                    }
 
                     // Cluster cannot be made empty
-                    if (cluster.Points.Count <= 1)
+                    if (cluster.Count <= 1)
+                    {
                         continue;
+                    }
 
                     // Move point to nearer cluster
-                    cluster.Points.RemoveAt(pointIndex);
-                    clusters[nearestClusterIndex].Points.Add(point);
+                    cluster.RemoveAt(pointIndex);
+                    clusters[nearestClusterIndex].Add(point);
                     changed = true;
                 }
             }
+
+            iters++;
         }
 
         // Get the centroid of every cluster
         return clusters.Select(x => x.Centroid).ToArray();
     }
 
-    private static int FindNearestClusterIndex<T>(T point, KCluster<T>[] clusters, ISpace<T> space)
+    private static int FindNearestClusterIndex(Color point, KCluster[] clusters)
     {
         var minDist = double.PositiveInfinity;
         var nearestIndex = -1;
 
         for (var k = 0; k < clusters.Length; k++)
         {
-            var dist = space.Distance(point, clusters[k].Centroid);
+            var dist = DistanceSquared(point, clusters[k].Centroid);
 
             if (dist < minDist)
             {
@@ -77,22 +81,33 @@ internal static class KMeans
         return nearestIndex;
     }
 
-    private static KCluster<T>[] Split<T>(List<T> points, int k, ISpace<T> space)
+    private static double DistanceSquared(Color item1, Color item2)
     {
-        var clusters = new KCluster<T>[k];
-        var clusterSize = points.Count / k;
+        // Get delta for each component
+        var dR = item1.R - item2.R;
+        var dG = item1.G - item2.G;
+        var dB = item1.B - item2.B;
+        // Ignore alpha
+
+        return dR * dR + dG * dG + dB * dB;
+    }
+
+    private static KCluster[] Split(Color[] points, int k)
+    {
+        var clusters = new KCluster[k];
+        var clusterSize = points.Length / k;
 
         for (var i = 0; i < k; i++)
         {
-            var cluster = new KCluster<T>(space);
+            var cluster = new KCluster();
 
             var start = i * clusterSize;
-            var end = Math.Min(points.Count - 1, (i + 1) * clusterSize);
+            var end = Math.Min(points.Length - 1, (i + 1) * clusterSize);
 
             for (var j = start; j < end; j++)
             {
                 var p = points[j];
-                cluster.Points.Add(p);
+                cluster.Add(p);
             }
 
             clusters[i] = cluster;
@@ -101,18 +116,48 @@ internal static class KMeans
         return clusters;
     }
 
-    private class KCluster<T>
+    private class KCluster
     {
-        private ISpace<T> _space;
+        private readonly List<Color> _points;
+        private int sumR;
+        private int sumG;
+        private int sumB;
 
-        public KCluster(ISpace<T> space)
+        public KCluster()
         {
-            Points = new List<T>();
-            _space = space;
+            this._points = new List<Color>();
         }
 
-        public List<T> Points { get; }
+        public Color Centroid
+        {
+            get
+            {
+                var r = (byte)(sumR / Count);
+                var g = (byte)(sumG / Count);
+                var b = (byte)(sumB / Count);
+                return Color.FromArgb(255, r, g, b);
+            }
+        }
 
-        public T Centroid => _space.Average(Points);
+        public int Count => _points.Count;
+
+        public Color this[int index] => _points[index];
+
+        public void Add(Color color)
+        {
+            _points.Add(color);
+            sumR += color.R;
+            sumG += color.G;
+            sumB += color.B;
+        }
+
+        public void RemoveAt(int index)
+        {
+            var color = this._points[index];
+            _points.RemoveAt(index);
+            sumR -= color.R;
+            sumG -= color.G;
+            sumB -= color.B;
+        }
     }
 }
