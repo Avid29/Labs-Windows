@@ -23,13 +23,6 @@ issue-id: 0
 
 TODO: Fill in information about this experiment and how to get started here...
 
-## Custom Control
-
-You can inherit from an existing component as well, like `Panel`, this example shows a control without a
-XAML Style that will be more light-weight to consume by an app developer:
-
-> [!Sample NodeGraphCustomSample]
-
 ## Templated Controls
 
 The Toolkit is built with templated controls. This provides developers a flexible way to restyle components
@@ -45,20 +38,3 @@ The `_ClassicBinding` class shows the traditional method used to develop compone
 ### Implict style
 
 > [!SAMPLE NodeGraphTemplatedSample]
-
-### Custom style
-
-> [!SAMPLE NodeGraphTemplatedStyleCustomSample]
-
-## Templated Controls with x:Bind
-
-This is an _experimental_ new way to define components which allows for the use of x:Bind within the style.
-
-### Implict style
-
-> [!SAMPLE NodeGraphXbindBackedSample]
-
-### Custom style
-
-> [!SAMPLE NodeGraphXbindBackedStyleCustomSample]
-
