@@ -10,4 +10,12 @@
 
   <!-- Sets this up as a toolkit component's source project -->
   <Import Project="$(ToolingDirectory)\ToolkitComponent.SourceProject.props" />
+  <ItemGroup>
+    <UpToDateCheckInput Remove="NodeGraphStyle.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="NodeGraphStyle.xaml.cs">
+      <DependentUpon>NodeGraphStyle.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
