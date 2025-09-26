@@ -23,76 +23,84 @@ public partial class TitleBar : Control
 
     private void SetWASDKTitleBar()
     {
-        if (this.Window == null)
-        {
+        // Skip if auto configure is disabled
+        if (!AutoConfigureCustomTitleBar)
             return;
-            // TO DO: Throw exception that window has not been set? 
-        }
-        if (AutoConfigureCustomTitleBar)
+
+        // TODO: Should we throw exception if the window has not been set? 
+        if (this.Window == null)
+            return;
+        
+        // Check for crucial template parts
+        if (PART_LeftPaddingColumn is null ||
+            PART_RightPaddingColumn is null)
+            return;
+
+        // Enable content extension into titlebar area
+        Window.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+
+        if (this.ContextFlyout != null && this.ContextFlyout is MenuFlyout menuFlyout)
         {
-            Window.AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            this.MenuFlyout = menuFlyout;
+            WndProcHelper = new WndProcHelper(this.Window);
+            WndProcHelper.RegisterWndProc(WindowWndProc);
+            WndProcHelper.RegisterInputNonClientPointerSourceWndProc(InputNonClientPointerSourceWndProc);
+        }
 
-            if (this.ContextFlyout != null && this.ContextFlyout is MenuFlyout menuFlyout)
-            {
-                this.MenuFlyout = menuFlyout;
-                WndProcHelper = new WndProcHelper(this.Window);
-                WndProcHelper.RegisterWndProc(WindowWndProc);
-                WndProcHelper.RegisterInputNonClientPointerSourceWndProc(InputNonClientPointerSourceWndProc);
-            }
+        // Subscribe to size changed and activated events
+        this.Window.SizeChanged -= Window_SizeChanged;
+        this.Window.SizeChanged += Window_SizeChanged;
+        this.Window.Activated -= Window_Activated;
+        this.Window.Activated += Window_Activated;
 
-            this.Window.SizeChanged -= Window_SizeChanged;
-            this.Window.SizeChanged += Window_SizeChanged;
-            this.Window.Activated -= Window_Activated;
-            this.Window.Activated += Window_Activated;
-
-            if (Window.Content is FrameworkElement rootElement)
+        if (Window.Content is FrameworkElement rootElement)
+        {
+            UpdateCaptionButtons(rootElement);
+            rootElement.ActualThemeChanged += (s, e) =>
             {
                 UpdateCaptionButtons(rootElement);
-                rootElement.ActualThemeChanged += (s, e) =>
-                {
-                    UpdateCaptionButtons(rootElement);
-                };
-            }
-
-            // Set the caption buttons to match the flow direction of the titlebar
-            if (AutoChangeWindowLayoutStyle)
-            {
-                UpdateCaptionButtonsDirection(this.FlowDirection);
-            }
-
-            PART_ContentPresenter = GetTemplateChild(nameof(PART_ContentPresenter)) as ContentPresenter;
-            PART_FooterPresenter = GetTemplateChild(nameof(PART_FooterPresenter)) as ContentPresenter;
-
-            // Get caption button occlusion information.
-            int CaptionButtonOcclusionWidthRight = Window.AppWindow.TitleBar.RightInset;
-            int CaptionButtonOcclusionWidthLeft = Window.AppWindow.TitleBar.LeftInset;
-            
-            // Swap left/right if in RTL mode
-            if (this.FlowDirection == FlowDirection.RightToLeft)
-            {
-                (CaptionButtonOcclusionWidthRight, CaptionButtonOcclusionWidthLeft) = (CaptionButtonOcclusionWidthLeft, CaptionButtonOcclusionWidthRight);
-            }
-
-            // Set padding columns to match caption button occlusion.
-            PART_LeftPaddingColumn!.Width = new GridLength(CaptionButtonOcclusionWidthLeft);
-            PART_RightPaddingColumn!.Width = new GridLength(CaptionButtonOcclusionWidthRight);
-
-            if (DisplayMode == DisplayMode.Tall)
-            {
-                // Choose a tall title bar to provide more room for interactive elements 
-                // like search box or person picture controls.
-                Window.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            }
-            else
-            {
-                Window.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Standard;
-            }
-            // Recalculate the drag region for the custom title bar 
-            // if you explicitly defined new draggable areas.
-            SetDragRegionForCustomTitleBar();
-
-            _isAutoConfigCompleted = true;
+            };
         }
+
+        // Set the caption buttons to match the flow direction of the titlebar
+        if (AutoChangeWindowLayoutStyle)
+        {
+            UpdateCaptionButtonsDirection(this.FlowDirection);
+        }
+
+        // Explicit casting throws early when parts are missing from the template
+        PART_ContentPresenter = (ContentPresenter)GetTemplateChild(nameof(PART_ContentPresenter));
+        PART_FooterPresenter = (ContentPresenter)GetTemplateChild(nameof(PART_FooterPresenter));
+
+        // Get caption button occlusion information.
+        int CaptionButtonOcclusionWidthRight = Window.AppWindow.TitleBar.RightInset;
+        int CaptionButtonOcclusionWidthLeft = Window.AppWindow.TitleBar.LeftInset;
+
+        // Swap left/right if in RTL mode
+        if (this.FlowDirection == FlowDirection.RightToLeft)
+        {
+            (CaptionButtonOcclusionWidthRight, CaptionButtonOcclusionWidthLeft) = (CaptionButtonOcclusionWidthLeft, CaptionButtonOcclusionWidthRight);
+        }
+
+        // Set padding columns to match caption button occlusion.
+        PART_LeftPaddingColumn.Width = new GridLength(CaptionButtonOcclusionWidthLeft);
+        PART_RightPaddingColumn.Width = new GridLength(CaptionButtonOcclusionWidthRight);
+
+        // Set preferred height option to match display mode
+        TitleBarHeightOption heightOption = DisplayMode switch
+        {
+            TitleBarDisplayMode.Standard => TitleBarHeightOption.Standard,
+            TitleBarDisplayMode.Tall => TitleBarHeightOption.Tall,
+            TitleBarDisplayMode.Collapsed => TitleBarHeightOption.Collapsed,
+            _ => TitleBarHeightOption.Collapsed,
+        };
+        Window.AppWindow.TitleBar.PreferredHeightOption = heightOption;
+
+        // Recalculate the drag region for the custom title bar 
+        // if you explicitly defined new draggable areas.
+        SetDragRegionForCustomTitleBar();
+
+        _isAutoConfigCompleted = true;
     }
 
     private void Window_SizeChanged(object sender, WindowSizeChangedEventArgs args)
@@ -104,6 +112,7 @@ public partial class TitleBar : Control
     {
         Window.AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         Window.AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
         if (rootElement.ActualTheme == ElementTheme.Dark)
         {
             Window.AppWindow.TitleBar.ButtonForegroundColor = Colors.White;

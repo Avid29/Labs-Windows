@@ -4,6 +4,11 @@
 
 namespace CommunityToolkit.WinUI.Controls;
 
+[TemplatePart(Name = PartBackButton, Type = typeof(Button))]
+[TemplatePart(Name = PartPaneButton, Type = typeof(Button))]
+[TemplatePart(Name = nameof(PART_LeftPaddingColumn), Type = typeof(ColumnDefinition))]
+[TemplatePart(Name = nameof(PART_RightPaddingColumn), Type = typeof(ColumnDefinition))]
+[TemplatePart(Name = nameof(PART_ButtonHolder), Type = typeof(StackPanel))]
 [TemplateVisualState(Name = BackButtonVisibleState, GroupName = BackButtonStates)]
 [TemplateVisualState(Name = BackButtonCollapsedState, GroupName = BackButtonStates)]
 [TemplateVisualState(Name = PaneButtonVisibleState, GroupName = PaneButtonStates)]
@@ -20,12 +25,6 @@ namespace CommunityToolkit.WinUI.Controls;
 [TemplateVisualState(Name = FooterCollapsedState, GroupName = FooterStates)]
 [TemplateVisualState(Name = WideState, GroupName = ReflowStates)]
 [TemplateVisualState(Name = NarrowState, GroupName = ReflowStates)]
-[TemplatePart(Name = PartBackButton, Type = typeof(Button))]
-[TemplatePart(Name = PartPaneButton, Type = typeof(Button))]
-[TemplatePart(Name = nameof(PART_LeftPaddingColumn), Type = typeof(ColumnDefinition))]
-[TemplatePart(Name = nameof(PART_RightPaddingColumn), Type = typeof(ColumnDefinition))]
-[TemplatePart(Name = nameof(PART_ButtonHolder), Type = typeof(StackPanel))]
-
 public partial class TitleBar : Control
 {
     private const string PartBackButton = "PART_BackButton";
@@ -49,6 +48,7 @@ public partial class TitleBar : Control
 
     private const string StandardState = "Standard";
     private const string TallState = "Tall";
+    private const string CollapsedState = "Collapsed";
     private const string DisplayModeStates = "DisplayModeStates";
 
     private const string ContentVisibleState = "ContentVisible";
@@ -71,15 +71,23 @@ public partial class TitleBar : Control
     // We only want to reset TitleBar configuration in app, if we're the TitleBar instance that's managing that state.
     private bool _isAutoConfigCompleted = false;
 
+    /// <summary>
+    /// Initializes a new instances of the <see cref="TitleBar"/> class.
+    /// </summary>
     public TitleBar()
     {
         this.DefaultStyleKey = typeof(TitleBar);
     }
 
+    /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
-        PART_LeftPaddingColumn = GetTemplateChild(nameof(PART_LeftPaddingColumn)) as ColumnDefinition;
-        PART_RightPaddingColumn = GetTemplateChild(nameof(PART_RightPaddingColumn)) as ColumnDefinition;
+        base.OnApplyTemplate();
+
+        // Explicit casting throws early when parts are missing from the template 
+        PART_LeftPaddingColumn = (ColumnDefinition)GetTemplateChild(nameof(PART_LeftPaddingColumn));
+        PART_RightPaddingColumn = (ColumnDefinition)GetTemplateChild(nameof(PART_RightPaddingColumn));
+
         ConfigureButtonHolder();
         Configure();
         if (GetTemplateChild(PartBackButton) is Button backButton)
@@ -98,8 +106,7 @@ public partial class TitleBar : Control
         SizeChanged -= this.TitleBar_SizeChanged;
         SizeChanged += this.TitleBar_SizeChanged;
 
-        Update();
-        base.OnApplyTemplate();
+        UpdateVisualState();
     }
 
     private void TitleBar_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -107,7 +114,7 @@ public partial class TitleBar : Control
         UpdateVisualStateAndDragRegion(e.NewSize);
     }
 
-    private void UpdateVisualStateAndDragRegion(Windows.Foundation.Size size)
+    private void UpdateVisualStateAndDragRegion(Size size)
     {
         if (size.Width <= CompactStateBreakpoint)
         {
@@ -168,6 +175,9 @@ public partial class TitleBar : Control
 #endif
     }
 
+    /// <summary>
+    /// Resets the window title bar to the system default.
+    /// </summary>
     public void Reset()
     {
 #if WINDOWS_UWP && !HAS_UNO
@@ -178,46 +188,33 @@ public partial class TitleBar : Control
 #endif
     }
 
-    private void Update()
+    private void UpdateVisualState()
     {
-        if (Icon != null)
-        {
-            VisualStateManager.GoToState(this, IconVisibleState, true);
-        }
-        else
-        {
-            VisualStateManager.GoToState(this, IconCollapsedState, true);
-        }
+        // Update icon visual state
+        var iconState = Icon is not null ? IconVisibleState : IconCollapsedState;
+        VisualStateManager.GoToState(this, iconState, true);
 
+        // Update back and pane visual states
         VisualStateManager.GoToState(this, IsBackButtonVisible ? BackButtonVisibleState : BackButtonCollapsedState, true);
         VisualStateManager.GoToState(this, IsPaneButtonVisible ? PaneButtonVisibleState : PaneButtonCollapsedState, true);
 
-        if (DisplayMode == DisplayMode.Tall)
-        {
-            VisualStateManager.GoToState(this, TallState, true);
-        }
-        else
-        {
-            VisualStateManager.GoToState(this, StandardState, true);
-        }
+        // Update content visual state
+        var contentState = Content is not null ? ContentVisibleState : ContentCollapsedState;
+        VisualStateManager.GoToState(this, contentState, true);
 
-        if (Content != null)
-        {
-            VisualStateManager.GoToState(this, ContentVisibleState, true);
-        }
-        else
-        {
-            VisualStateManager.GoToState(this, ContentCollapsedState, true);
-        }
+        // Update footer visual state
+        var footerState = Footer is not null ? FooterVisibleState : FooterCollapsedState;
+        VisualStateManager.GoToState(this, footerState, true);
 
-        if (Footer != null)
+        // Update display mode visual state
+        var displayModeState = DisplayMode switch
         {
-            VisualStateManager.GoToState(this, FooterVisibleState, true);
-        }
-        else
-        {
-            VisualStateManager.GoToState(this, FooterCollapsedState, true);
-        }
+            TitleBarDisplayMode.Standard => StandardState,
+            TitleBarDisplayMode.Tall => TallState,
+            TitleBarDisplayMode.Collapsed => CollapsedState,
+            _ => StandardState,
+        };
+        VisualStateManager.GoToState(this, displayModeState, true);
 
 #if WINAPPSDK
         SetDragRegionForCustomTitleBar();

@@ -6,6 +6,7 @@
 using System.Runtime.InteropServices;
 
 namespace CommunityToolkit.WinUI.Controls;
+
 internal static class NativeMethods
 {
     public enum WindowMessage : int
@@ -16,6 +17,7 @@ internal static class NativeMethods
         WM_SYSMENU = 0x0313,
         WM_GETMINMAXINFO = 0x0024
     }
+
     [Flags]
     public enum WindowStyle : uint
     {

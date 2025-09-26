@@ -44,7 +44,7 @@ public partial class TitleBar : Control
     /// <summary>
     /// The backing <see cref="DependencyProperty"/> for the <see cref="DisplayMode"/> property.
     /// </summary>
-    public static readonly DependencyProperty DisplayModeProperty = DependencyProperty.Register(nameof(DisplayMode), typeof(DisplayMode), typeof(TitleBar), new PropertyMetadata(DisplayMode.Standard, DisplayModeChanged));
+    public static readonly DependencyProperty DisplayModeProperty = DependencyProperty.Register(nameof(DisplayMode), typeof(TitleBarDisplayMode), typeof(TitleBar), new PropertyMetadata(TitleBarDisplayMode.Standard, DisplayModeChanged));
 
     /// <summary>
     /// The backing <see cref="DependencyProperty"/> for the <see cref="CompactStateBreakpoint
@@ -125,11 +125,11 @@ public partial class TitleBar : Control
     }
 
     /// <summary>
-    /// Gets or sets DisplayMode. Compact is default (32px), Tall is recommended when setting the Content or Footer.
+    /// Gets or sets the <see cref="TitleBar"/>'s display mode.
     /// </summary>
-    public DisplayMode DisplayMode
+    public TitleBarDisplayMode DisplayMode
     {
-        get => (DisplayMode)GetValue(DisplayModeProperty);
+        get => (TitleBarDisplayMode)GetValue(DisplayModeProperty);
         set => SetValue(DisplayModeProperty, value);
     }
 
@@ -191,32 +191,32 @@ public partial class TitleBar : Control
 
     private static void IsBackButtonVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void IsPaneButtonVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void DisplayModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void ContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void FooterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void IconChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((TitleBar)d).Update();
+        ((TitleBar)d).UpdateVisualState();
     }
 
     private static void AutoConfigureCustomTitleBarChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -230,10 +230,4 @@ public partial class TitleBar : Control
             ((TitleBar)d).Reset();
         }
     }
-}
-
-public enum DisplayMode
-{
-    Standard,
-    Tall
 }
