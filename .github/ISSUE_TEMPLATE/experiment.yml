@@ -1,4 +1,4 @@
-name: Experiment Tracking Form
+name: Experiment Creation Issue
 description: (w/ Approved Discussion) Create an issue to track an approved experiment
 title: "🧪 [Experiment]"
 labels: ["experiment :test_tube:"]

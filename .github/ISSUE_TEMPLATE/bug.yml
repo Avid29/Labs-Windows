@@ -1,6 +1,7 @@
-name: Bug report (Labs Infrastructure)
-description: Create a report to help us fix something within labs itself (for specific components - comment on the Experiment's issue)
+name: Bug report (Existing Experiment)
+description: Create 
 labels: ["bug :bug:"]
+title: "[<Experiment Name>]: <Short Description>"
 body:
 - type: markdown
   attributes: 
@@ -12,9 +13,11 @@ body:
       
       If you're uncertain about a problem, find or start a [Questions & Answers](https://github.com/CommunityToolkit/Labs-Windows/discussions/categories/q-a) discussion, where you can get insight from the community regarding your issue. 
 
-      This form is for reporting issues with the Labs infrastructure, template, or Sample app itself and not individual experiments.
+      This form is for reporting issues with experiments or their samples. Not the Labs infrastructure, template, or Sample app itself.
 
-      If you have an issue about a specific **Experiment**, please find it's issue and comment there.
+      If you have an issue with the labs infrastructure **Experiment**, please find it's issue and comment there.
+
+      **Please be sure to modify the title to specify the bugged experiment and a short description of the issue.**
       
 - type: textarea
   id: description
