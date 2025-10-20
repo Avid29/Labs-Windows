@@ -10,13 +10,9 @@ namespace CommunityToolkit.WinUI.Helpers;
 public class BaseColorPaletteSelector : ColorPaletteSelector
 {
     /// <inheritdoc/>
-    public override void SelectColors(IEnumerable<PaletteColor> palettes)
+    protected override IEnumerable<PaletteColor> ApplySelector(IEnumerable<PaletteColor> palettes)
     {
         // Get base color
-        SelectedColors = palettes
-            .Select(x => x.Color)
-            .OrderBy(ColorExtensions.FindColorfulness)
-            .ToList()
-            .EnsureMinColorCount(MinColorCount);
+        return palettes.OrderBy(x => ColorExtensions.FindColorfulness(x.Color));
     }
 }

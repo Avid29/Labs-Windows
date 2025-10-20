@@ -10,13 +10,9 @@ namespace CommunityToolkit.WinUI.Helpers;
 public class AccentColorPaletteSelector : ColorPaletteSelector
 {
     /// <inheritdoc/>
-    public override void SelectColors(IEnumerable<PaletteColor> palette)
+    protected override IEnumerable<PaletteColor> ApplySelector(IEnumerable<PaletteColor> palette)
     {
         // Select accent colors
-        SelectedColors = palette
-            .Select(x => x.Color)
-            .OrderByDescending(ColorExtensions.FindColorfulness)
-            .ToList()
-            .EnsureMinColorCount(MinColorCount);
+        return palette.OrderByDescending(x => ColorExtensions.FindColorfulness(x.Color));
     }
 }

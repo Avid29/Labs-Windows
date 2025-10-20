@@ -10,13 +10,9 @@ namespace CommunityToolkit.WinUI.Helpers;
 public class ColorWeightPaletteSelector : ColorPaletteSelector
 {
     /// <inheritdoc/>
-    public override void SelectColors(IEnumerable<PaletteColor> colors)
+    protected override IEnumerable<PaletteColor> ApplySelector(IEnumerable<PaletteColor> colors)
     {
         // Order by weight and ensure we have at least MinColorCount colors
-        SelectedColors = colors
-            .OrderByDescending(x => x.Weight)
-            .Select(x => x.Color)
-            .ToList()
-            .EnsureMinColorCount(MinColorCount);
+        return colors.OrderByDescending(x => x.Weight);
     }
 }

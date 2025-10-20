@@ -39,7 +39,7 @@ public abstract class ColorPaletteSelector : DependencyObject
     public IList<Color>? SelectedColors
     {
         get => (IList<Color>?)GetValue(SelectedColorsProperty);
-        protected set => SetValue(SelectedColorsProperty, value);
+        private set => SetValue(SelectedColorsProperty, value);
     }
 
     /// <summary>
@@ -50,15 +50,28 @@ public abstract class ColorPaletteSelector : DependencyObject
         get => (int)GetValue(MinColorCountProperty);
         set => SetValue(MinColorCountProperty, value);
     }
-
+    
     /// <summary>
     /// Selects a set of colors from a palette to create a sub-group.
     /// </summary>
-    /// <param name="palette">The color info extracted by the <see cref="ColorPaletteSampler"/>.</param>
-    public virtual void SelectColors(IEnumerable<PaletteColor> palette)
+    /// <param name="palette"></param>
+    public void SelectColors(IEnumerable<PaletteColor> palette)
     {
         _palette = palette;
+
+        // Select the color from the 
+        var selection = ApplySelector(palette)
+            .Select(x => x.Color)
+            .EnsureMinColorCount(MinColorCount);
+
+        // Convert to list and update SelectedColors.
+        SelectedColors = selection.ToList();
     }
+    
+    /// <summary>
+    /// This is a virtual function which applies the palette-type-specific selection.
+    /// </summary>
+    protected abstract IEnumerable<PaletteColor> ApplySelector(IEnumerable<PaletteColor> palette);
 
     private static void OnMinColorCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {

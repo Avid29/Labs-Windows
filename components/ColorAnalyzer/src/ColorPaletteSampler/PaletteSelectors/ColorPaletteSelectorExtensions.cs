@@ -17,18 +17,25 @@ public static class ColorPaletteSelectorExtensions
     /// <param name="colors">The list of colors to extend</param>
     /// <param name="minCount">The minimum number of colors required</param>
     /// <param name="index">The index of the item to repeat</param>
-    public static IList<Color> EnsureMinColorCount(this IList<Color> colors, int minCount, int index = 0)
+    public static IEnumerable<Color> EnsureMinColorCount(this IEnumerable<Color> colors, int minCount, int index = 0)
     {
-        // If we already have enough colors, do nothing.
-        if (colors.Count >= minCount)
-            return colors;
-
-        var nthColor = colors[index];
-        while (colors.Count < minCount)
+        int i = 0;
+        Color fallback = Colors.Transparent;
+        foreach (var color in colors)
         {
-            colors.Add(nthColor);
+            if (i == index)
+            {
+                fallback = color;
+            }
+
+            i++;
+            yield return color;
         }
 
-        return colors;
+        if (i < minCount)
+        {
+            i++;
+            yield return fallback;
+        }
     }
 }
