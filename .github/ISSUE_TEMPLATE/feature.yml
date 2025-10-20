@@ -1,7 +1,7 @@
-name: Experiment Creation Issue
-description: (w/ Approved Discussion) Create an issue to track an approved experiment
-title: "🧪 [Experiment]"
-labels: ["experiment :test_tube:"]
+name: Experiment Modification Issue
+description: (w/ Approved Discussion) Create an issue to track an addition to an existing experiment
+title: "⚙️ [Enhancment]"
+labels: ["enhancment"]
 body:
 - type: markdown
   attributes: 
@@ -9,19 +9,10 @@ body:
       ## Before you begin
       🚨 **Please do not skip instructions**🚨
       
-      This template is to be used with an approved experiment proposal in the [Discussions](https://github.com/CommunityToolkit/Labs-Windows/discussions).
+      This template is to be used with an approved proposal on the [experiment's discussion entry](https://github.com/CommunityToolkit/Labs-Windows/discussions/categories/experiments).
 
       This info is essential to help us process your experiment.
 
-- type: input
-  id: linked-discussion
-  validations:
-    required: true
-  attributes:
-    label: Approved from Discussion
-    description: Paste in a link to your approved discussion from https://github.com/CommunityToolkit/Labs-Windows/discussions
-    placeholder: "https://github.com/CommunityToolkit/Labs-Windows/discussions/###"
-    
 - type: textarea
   id: problem-statement
   validations: 
@@ -38,11 +29,11 @@ body:
     required: true
   attributes: 
     label: Overview
-    description: What components/functions does this experiment add?
+    description: What feature or enhancment will be added to this component?
     value: |
-      This experiment adds the following components:
-       - **Component One** a ...
-       - **Component Two** a ...
+      This enhancment adds the following components:
+       - **Feature/Enhancment One** a ...
+       - **Feature/Enhancment Two** a ...
 
 - type: textarea
   id: additional-info

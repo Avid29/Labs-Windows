@@ -1,5 +1,5 @@
 name: Bug report (Existing Experiment)
-description: Create 
+description: Create a bug report on an existing experiment
 labels: ["bug :bug:"]
 title: "[<Experiment Name>]: <Short Description>"
 body:

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: New Idea?
-    url: https://github.com/CommunityToolkit/Labs-Windows/discussions?discussions_q=category%3AExperiments+category%3AIdeas
-    about: Search existing experiments and ideas or contribute your own in our Discussion forum.
   - name: Infrastructure/Tooling Bugs and Issues 
     url: https://github.com/CommunityToolkit/Tooling-Windows-Submodule/issues
     about: Report an issue with the Windows Community Toolkit or Windows Community Toolkit Labs infrastructure, such as the sample app.
+  - name: New Idea?
+    url: https://github.com/CommunityToolkit/Labs-Windows/discussions?discussions_q=category%3AExperiments+category%3AIdeas
+    about: Search existing experiments and ideas or contribute your own in our Discussion forum.
   - name: Not sure where to start? Start a Discussion!
     url: https://github.com/CommunityToolkit/Labs-Windows/discussions
     about: I have a question about how to use something in the toolkit.
