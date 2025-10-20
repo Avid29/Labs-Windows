@@ -43,6 +43,11 @@ public abstract class ColorPaletteSelector : DependencyObject
     }
 
     /// <summary>
+    /// Gets the <see cref="IColorConstrainer"/> to apply to all colors
+    /// </summary>
+    public IColorConstrainer? ColorConstrainer { get; set; }
+
+    /// <summary>
     /// Gets or sets the minimum number of colors permitted to select from the palette.
     /// </summary>
     public int MinColorCount
@@ -63,6 +68,12 @@ public abstract class ColorPaletteSelector : DependencyObject
         var selection = ApplySelector(palette)
             .Select(x => x.Color)
             .EnsureMinColorCount(MinColorCount);
+
+        // Apply constraints if not null
+        if (ColorConstrainer is not null)
+        {
+            selection = selection.Select(ColorConstrainer.Clamp);
+        }
 
         // Convert to list and update SelectedColors.
         SelectedColors = selection.ToList();
