@@ -35,8 +35,30 @@ public class HsvColorConstrainer : IColorConstrainer
     public Color Clamp(Color color)
     {
         HsvColor hsv = color.ToHsv();
-        hsv.S = Math.Clamp(hsv.S, MinimumSaturation, MaximumSaturation);
-        hsv.V = Math.Clamp(hsv.V, MinimumValue, MaximumValue);
+        hsv.S = LoopClamp(hsv.S, MinimumSaturation, MaximumSaturation);
+        hsv.V = LoopClamp(hsv.V, MinimumValue, MaximumValue);
         return ColorHelper.FromHsv(hsv.H, hsv.S, hsv.V);
+    }
+
+    /// <summary>
+    /// LoopClamp allows a clamp region to be inverted, rounding to the nearest valid value if in the dead-zone above max and below min.
+    /// </summary>
+    private static double LoopClamp(double value, double min, double max)
+    {
+        // Min is less than max.
+        // Apply regular clamp
+        if (min < max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+
+        // Value is less than max or greater than min
+        if (value < max || value > min)
+        {
+            return value;
+        }
+
+        // The value is in the deadzone, round to nearest valid value
+        return value - max < min - value ? max : min;
     }
 }
