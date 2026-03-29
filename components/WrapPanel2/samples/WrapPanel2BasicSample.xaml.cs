@@ -23,6 +23,7 @@ public sealed partial class WrapPanel2BasicSample : Page
     public WrapPanel2BasicSample()
     {
         this.InitializeComponent();
+        Add5ItemsClick(null!, null!);
     }
 
     // TODO: See https://github.com/CommunityToolkit/Labs-Windows/issues/149
